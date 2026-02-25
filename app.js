@@ -70,6 +70,16 @@ function render() {
             card.onclick = () => openModal(m);
             col.appendChild(card);
 
+            .materia-card {
+    background: var(--card); 
+    border: 1px solid var(--border); 
+    padding: 0.8rem; 
+    border-radius: 6px; 
+    margin-bottom: 0.6rem;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
             // Agregar a listas dinámicas
             if (isReady) listCursar.innerHTML += `<li>${m.nombre}</li>`;
             if (estado[m.id] === 'regular') listRendir.innerHTML += `<li>${m.nombre}</li>`;
@@ -114,5 +124,6 @@ function updateStats() {
     document.getElementById('stats-text').innerText = `${apr}/${total} Aprobadas`;
     document.getElementById('p-fill').style.width = (apr/total*100) + "%";
 }
+
 
 window.onload = render;
