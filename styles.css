@@ -12,36 +12,47 @@ body { font-family: 'Inter', sans-serif; background: var(--bg); margin: 0; color
 .progress-bar { background: #e5e7eb; height: 10px; border-radius: 5px; overflow: hidden; margin-top: 4px; }
 .p-fill { background: var(--apr); height: 100%; width: 0; transition: 0.5s ease; }
 
-/* PANEL DE INFO */
 .info-panel { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; padding: 1.5rem 2rem 0; }
 .info-card { background: white; padding: 1rem; border-radius: 8px; border: 1px solid var(--border); }
-.info-card h3 { margin: 0 0 10px 0; font-size: 0.9rem; text-transform: uppercase; display: flex; align-items: center; gap: 8px; }
+.info-card h3 { margin: 0 0 10px 0; font-size: 0.85rem; text-transform: uppercase; display: flex; align-items: center; gap: 8px; }
 .info-card ul { margin: 0; padding-left: 20px; font-size: 0.85rem; color: #4b5563; column-count: 2; }
 .info-card.cursar h3 { color: var(--ready); }
 .info-card.rendir h3 { color: var(--reg); }
 
 .tracker-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 1rem; padding: 1.5rem 2rem; min-width: 1200px; }
-@media (max-width: 1100px) { .tracker-grid { grid-template-columns: 1fr; min-width: 100%; } .info-panel { grid-template-columns: 1fr; } .info-card ul { column-count: 1; } }
+@media (max-width: 1100px) { 
+    .tracker-grid { grid-template-columns: 1fr; min-width: 100%; } 
+    .info-panel { grid-template-columns: 1fr; } 
+    .info-card ul { column-count: 1; }
+}
 
-.nivel-col h2 { font-size: 0.8rem; color: #6b7280; text-transform: uppercase; border-bottom: 2px solid var(--border); padding-bottom: 5px; margin-bottom: 15px; }
+/* Cabecera de Nivel con Botones */
+.nivel-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--border); padding-bottom: 5px; margin-bottom: 15px; }
+.nivel-header h2 { font-size: 0.8rem; color: #6b7280; text-transform: uppercase; margin: 0; }
+.nivel-actions { display: flex; gap: 5px; }
+
+.btn-inline { padding: 4px 8px; font-size: 0.6rem; font-weight: 800; border-radius: 4px; border: 1px solid var(--border); cursor: pointer; background: white; }
+.btn-apr-all { color: var(--apr); border-color: var(--apr); }
+.btn-apr-all:hover { background: #ecfdf5; }
+.btn-reset-all { color: #ef4444; border-color: #ef4444; }
+.btn-reset-all:hover { background: #fef2f2; }
 
 .materia-card {
     background: var(--card); border: 1px solid var(--border); padding: 0.8rem; border-radius: 6px; margin-bottom: 0.6rem;
     cursor: pointer; transition: 0.2s;
 }
-.materia-card:hover { border-color: var(--ready); background: #f8fafc; }
+.materia-card:hover { border-color: var(--ready); background: #f8fafc; transform: translateY(-2px); }
+.materia-card:active { transform: scale(0.98); }
 .materia-card h4 { margin: 0; font-size: 0.8rem; font-weight: 600; }
 .materia-card .code { font-size: 0.65rem; font-weight: 700; color: #9ca3af; }
 
-/* Estados visuales en la grilla */
-.materia-card.aprobada { border-left: 5px solid var(--apr); background: #ecfdf5; }
-.materia-card.regular { border-left: 5px solid var(--reg); background: #fffbeb; }
-.materia-card.ready { border: 2px solid var(--ready); }
+.materia-card.aprobada { border-left: 6px solid var(--apr); background: #ecfdf5; }
+.materia-card.regular { border-left: 6px solid var(--reg); background: #fffbeb; }
+.materia-card.ready { border: 2px solid var(--ready); box-shadow: 0 0 8px rgba(37, 99, 235, 0.1); }
 
-/* Modal */
 .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: none; align-items: center; justify-content: center; z-index: 2000; }
-.modal-content { background: white; padding: 1.5rem; border-radius: 10px; width: 90%; max-width: 350px; }
-.btn { width: 100%; padding: 10px; margin: 4px 0; border: none; border-radius: 5px; font-weight: 700; cursor: pointer; font-size: 0.8rem; }
+.modal-content { background: white; padding: 1.5rem; border-radius: 10px; width: 90%; max-width: 350px; text-align: center; }
+.btn { width: 100%; padding: 10px; margin: 4px 0; border: none; border-radius: 5px; font-weight: 700; cursor: pointer; }
 .btn-apr { background: var(--apr); color: white; }
 .btn-reg { background: var(--reg); color: white; }
 .btn-vac { background: #f3f4f6; color: #374151; }
