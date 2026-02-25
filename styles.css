@@ -1,21 +1,29 @@
 :root { --bg: #f3f4f6; --apr: #059669; --reg: #d97706; --ready: #2563eb; }
-body { font-family: sans-serif; background: var(--bg); margin: 0; }
-.navbar { background: white; padding: 10px 20px; display: flex; justify-content: space-between; border-bottom: 1px solid #ddd; position: sticky; top: 0; z-index: 100; }
+body { font-family: 'Inter', sans-serif; background: var(--bg); margin: 0; }
+.navbar { background: white; padding: 10px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #ddd; position: sticky; top: 0; z-index: 100; }
 .progress-bar { background: #eee; width: 150px; height: 10px; border-radius: 5px; overflow: hidden; }
 .p-fill { background: var(--apr); height: 100%; width: 0; transition: 0.5s; }
-.info-panel { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 20px; }
-.info-card { background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-.tracker-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 15px; padding: 20px; min-width: 1000px; }
-@media (max-width: 1000px) { .tracker-grid { grid-template-columns: 1fr; min-width: 100%; } .info-panel { grid-template-columns: 1fr; } }
-.nivel-header { display: flex; justify-content: space-between; align-items: center; background: #e5e7eb; padding: 5px 10px; border-radius: 4px; margin-bottom: 10px; }
-.materia-card { background: white; padding: 10px; border-radius: 6px; margin-bottom: 8px; border: 1px solid #ddd; cursor: pointer; }
+.info-panel { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 20px; }
+.info-card { background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+.tracker-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 15px; padding: 20px; min-width: 1100px; }
+@media (max-width: 1100px) { .tracker-grid { grid-template-columns: 1fr; min-width: 100%; } .info-panel { grid-template-columns: 1fr; } }
+
+.nivel-header { display: flex; justify-content: space-between; align-items: center; background: #e5e7eb; padding: 8px; border-radius: 6px; margin-bottom: 12px; }
+.nivel-header h2 { font-size: 0.8rem; margin: 0; color: #4b5563; }
+
+.materia-card { background: white; padding: 12px; border-radius: 8px; margin-bottom: 8px; border: 1px solid #ddd; cursor: pointer; transition: 0.2s; position: relative; }
 .materia-card.aprobada { border-left: 6px solid var(--apr); background: #ecfdf5; }
 .materia-card.regular { border-left: 6px solid var(--reg); background: #fffbeb; }
 .materia-card.ready { border: 2px solid var(--ready); }
-.modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; }
-.modal-content { background: white; padding: 20px; border-radius: 10px; width: 300px; text-align: center; }
-.btn { width: 100%; padding: 10px; margin: 5px 0; border: none; border-radius: 5px; cursor: pointer; color: white; font-weight: bold; }
+
+/* ESTADO BLOQUEADO */
+.materia-card.locked { background: #e5e7eb; border-color: #d1d5db; cursor: not-allowed; opacity: 0.6; }
+.materia-card.locked::after { content: "🔒"; position: absolute; top: 5px; right: 5px; font-size: 0.7rem; }
+
+.modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; z-index: 1000; }
+.modal-content { background: white; padding: 25px; border-radius: 12px; width: 300px; text-align: center; }
+.btn { width: 100%; padding: 12px; margin: 6px 0; border: none; border-radius: 6px; cursor: pointer; color: white; font-weight: 800; }
 .btn-apr { background: var(--apr); }
 .btn-reg { background: var(--reg); }
 .btn-vac { background: #6b7280; }
-.btn-close { background: none; color: red; border: none; cursor: pointer; margin-top: 10px; }
+.btn-close { background: none; color: #ef4444; border: none; cursor: pointer; margin-top: 15px; font-weight: bold; }
