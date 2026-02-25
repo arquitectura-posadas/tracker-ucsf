@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>UCSF Arch Tracker</title>
     <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
 </head>
 <body>
     <nav class="navbar">
@@ -17,11 +18,11 @@
 
     <section class="info-panel">
         <div class="info-card">
-            <h3>🚀 Podés Cursar</h3>
+            <h3 style="color:#2563eb">🚀 Podés Cursar</h3>
             <ul id="list-cursar"></ul>
         </div>
         <div class="info-card">
-            <h3>📝 Podés Rendir</h3>
+            <h3 style="color:#d97706">📝 Podés Rendir (Finales)</h3>
             <ul id="list-rendir"></ul>
         </div>
     </section>
@@ -31,9 +32,10 @@
     <div id="modal" class="modal" style="display:none;">
         <div class="modal-content">
             <h3 id="modal-title">Materia</h3>
+            <p id="modal-info" style="font-size: 0.75rem; color: #666; margin-bottom: 15px;"></p>
             <button class="btn btn-apr" onclick="setMateriaEstado('aprobada')">APROBADA</button>
             <button class="btn btn-reg" onclick="setMateriaEstado('regular')">REGULAR</button>
-            <button class="btn btn-vac" onclick="setMateriaEstado('no_cursada')">VACÍO</button>
+            <button class="btn btn-vac" onclick="setMateriaEstado('no_cursada')">VACÍO / RESET</button>
             <button class="btn-close" onclick="closeModal()">Cerrar</button>
         </div>
     </div>
