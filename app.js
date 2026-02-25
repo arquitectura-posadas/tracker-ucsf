@@ -39,49 +39,35 @@ const materias = [
     { id: "INVA", nombre: "Investig. Arq.", nivel: 5, cReg: ["ARQ4", "HAU3", "PLAN"], nApr: [1, 2, 3] }
 ];
 
-let estado = JSON.parse(localStorage.getItem("ucsf_tracker_v3")) || {};
+let estado = JSON.parse(localStorage.getItem("ucsf_v4")) || {};
 let currentMateria = null;
 
 function render() {
     const grid = document.getElementById('tracker-body');
-    const listCursar = document.getElementById('list-cursar');
-    const listRendir = document.getElementById('list-rendir');
-    
-    if(!grid) return;
-
-    grid.innerHTML = '';
-    listCursar.innerHTML = '';
-    listRendir.innerHTML = '';
+    const lc = document.getElementById('list-cursar');
+    const lr = document.getElementById('list-rendir');
+    grid.innerHTML = ''; lc.innerHTML = ''; lr.innerHTML = '';
 
     for (let i = 1; i <= 5; i++) {
         const col = document.createElement('div');
-        col.className = 'nivel-col';
-        
-        const header = document.createElement('div');
-        header.className = 'nivel-header';
-        header.innerHTML = `
-            <h2>Nivel ${i}</h2>
-            <div class="nivel-actions">
-                <button class="btn-inline btn-apr-all" onclick="aprobarTodoElNivel(${i})">APR</button>
-                <button class="btn-inline btn-reset-all" onclick="resetearNivel(${i})">CLR</button>
-            </div>
-        `;
-        col.appendChild(header);
+        col.innerHTML = `<div class="nivel-header"><strong>NIVEL ${i}</strong> 
+            <button onclick="aprAll(${i})" style="font-size:10px;">APR</button></div>`;
         
         materias.filter(m => m.nivel === i).forEach(m => {
-            const isReady = puedeCursar(m);
-            const card = document.createElement('div');
-            card.className = `materia-card ${estado[m.id] || ''} ${isReady ? 'ready' : ''}`;
-            card.innerHTML = `<span class="code">${m.id}</span><h4>${m.nombre}</h4>`;
-            card.onclick = () => openModal(m);
-            col.appendChild(card);
-
-            if (isReady) listCursar.innerHTML += `<li>${m.nombre}</li>`;
-            if (estado[m.id] === 'regular') listRendir.innerHTML += `<li>${m.nombre}</li>`;
+            const can = puedeCursar(m);
+            const div = document.createElement('div');
+            div.className = `materia-card ${estado[m.id] || ''} ${can ? 'ready' : ''}`;
+            div.innerHTML = `<strong>${m.id}</strong><br>${m.nombre}`;
+            div.onclick = () => { currentMateria = m; document.getElementById('modal-title').innerText = m.nombre; document.getElementById('modal').style.display = 'flex'; };
+            col.appendChild(div);
+            if(can) lc.innerHTML += `<li>${m.nombre}</li>`;
+            if(estado[m.id] === 'regular') lr.innerHTML += `<li>${m.nombre}</li>`;
         });
         grid.appendChild(col);
     }
-    updateStats();
+    const apr = materias.filter(m => estado[m.id] === 'aprobada').length;
+    document.getElementById('stats-text').innerText = `${apr}/38 Aprobadas`;
+    document.getElementById('p-fill').style.width = (apr/38*100) + "%";
 }
 
 function puedeCursar(m) {
@@ -92,46 +78,14 @@ function puedeCursar(m) {
     return r && a && n;
 }
 
-function openModal(m) {
-    currentMateria = m;
-    document.getElementById('modal-title').innerText = m.nombre;
-    const reqText = m.cApr ? `Final de: ${m.cApr.join(', ')}` : 'Sin requisitos de final.';
-    document.getElementById('modal-info').innerText = reqText;
-    document.getElementById('modal').style.display = 'flex';
+function setMateriaEstado(s) { 
+    if(s === 'no_cursada') delete estado[currentMateria.id];
+    else estado[currentMateria.id] = s;
+    localStorage.setItem("ucsf_v4", JSON.stringify(estado));
+    closeModal(); render(); 
 }
 
+function aprAll(n) { materias.filter(m => m.nivel === n).forEach(m => estado[m.id] = 'aprobada'); localStorage.setItem("ucsf_v4", JSON.stringify(estado)); render(); }
 function closeModal() { document.getElementById('modal').style.display = 'none'; }
 
-function setMateriaEstado(s) {
-    estado[currentMateria.id] = s;
-    guardarYRefrescar();
-    closeModal();
-}
-
-function aprobarTodoElNivel(n) {
-    if(confirm(`¿Marcar Nivel ${n} como APROBADO?`)) {
-        materias.filter(m => m.nivel === n).forEach(m => estado[m.id] = 'aprobada');
-        guardarYRefrescar();
-    }
-}
-
-function resetearNivel(n) {
-    if(confirm(`¿Resetear Nivel ${n}?`)) {
-        materias.filter(m => m.nivel === n).forEach(m => delete estado[m.id]);
-        guardarYRefrescar();
-    }
-}
-
-function guardarYRefrescar() {
-    localStorage.setItem("ucsf_tracker_v3", JSON.stringify(estado));
-    render();
-}
-
-function updateStats() {
-    const total = materias.length;
-    const apr = materias.filter(m => estado[m.id] === 'aprobada').length;
-    document.getElementById('stats-text').innerText = `${apr}/${total} Aprobadas`;
-    document.getElementById('p-fill').style.width = (apr/total*100) + "%";
-}
-
-document.addEventListener('DOMContentLoaded', render);
+window.onload = render;
