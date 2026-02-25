@@ -38,39 +38,45 @@ const materias = [
     { id: "SEMF", nombre: "Seminario Final", nivel: 5, cApr: ["ARQ5"], nApr: [1, 2, 3] }
 ];
 
-let estado = JSON.parse(localStorage.getItem("ucsf_v5")) || {};
+let estado = JSON.parse(localStorage.getItem("ucsf_final_v6")) || {};
 let currentMateria = null;
 
 function render() {
     const grid = document.getElementById('tracker-body');
     const lc = document.getElementById('list-cursar');
     const lr = document.getElementById('list-rendir');
+    if(!grid) return;
+
     grid.innerHTML = ''; lc.innerHTML = ''; lr.innerHTML = '';
 
     for (let i = 1; i <= 5; i++) {
         const col = document.createElement('div');
         col.className = 'nivel-col';
-        col.innerHTML = `
-            <div class="nivel-header">
-                <strong>NIVEL ${i}</strong> 
-                <div>
-                    <button onclick="aprNiv(${i})" title="Aprobar todo el nivel" style="font-size:9px; cursor:pointer;">APR</button>
-                    <button onclick="clrNiv(${i})" title="Resetear nivel" style="font-size:9px; cursor:pointer; color:red;">CLR</button>
-                </div>
-            </div>`;
+        col.innerHTML = `<div class="nivel-header"><h2>NIVEL ${i}</h2> 
+            <div>
+                <button onclick="aprNiv(${i})" style="font-size:9px; cursor:pointer;">APR</button>
+                <button onclick="clrNiv(${i})" style="font-size:9px; cursor:pointer; color:red;">CLR</button>
+            </div></div>`;
         
         materias.filter(m => m.nivel === i).forEach(m => {
-            const can = puedeCursar(m);
-            const div = document.createElement('div');
-            div.className = `materia-card ${estado[m.id] || ''} ${can ? 'ready' : ''}`;
-            div.innerHTML = `<small>${m.id}</small><br><strong>${m.nombre}</strong>`;
-            div.onclick = () => { 
-                currentMateria = m; 
-                document.getElementById('modal-title').innerText = m.nombre; 
-                document.getElementById('modal').style.display = 'flex'; 
-            };
-            col.appendChild(div);
-            if(can) lc.innerHTML += `<li>${m.nombre}</li>`;
+            const isReady = puedeCursar(m);
+            const isDone = estado[m.id] === 'regular' || estado[m.id] === 'aprobada';
+            const card = document.createElement('div');
+            
+            // Clase de estado: si no está lista y no está hecha, va LOCKED
+            let statusClass = isDone ? (estado[m.id] || '') : (isReady ? 'ready' : 'locked');
+            card.className = `materia-card ${statusClass}`;
+            card.innerHTML = `<small>${m.id}</small><br><strong>${m.nombre}</strong>`;
+            
+            // Solo clickable si está lista o ya tiene estado
+            if (isReady || isDone) {
+                card.onclick = () => { currentMateria = m; document.getElementById('modal-title').innerText = m.nombre; document.getElementById('modal').style.display = 'flex'; };
+            } else {
+                card.onclick = () => alert("Materia bloqueada: revisá correlativas anteriores.");
+            }
+
+            col.appendChild(card);
+            if(isReady) lc.innerHTML += `<li>${m.nombre}</li>`;
             if(estado[m.id] === 'regular') lr.innerHTML += `<li>${m.nombre}</li>`;
         });
         grid.appendChild(col);
@@ -91,26 +97,12 @@ function puedeCursar(m) {
 function setMateriaEstado(s) { 
     if(s === 'no_cursada') delete estado[currentMateria.id];
     else estado[currentMateria.id] = s;
-    localStorage.setItem("ucsf_v5", JSON.stringify(estado));
+    localStorage.setItem("ucsf_final_v6", JSON.stringify(estado));
     closeModal(); render(); 
 }
 
-function aprNiv(n) { 
-    if(confirm(`¿Marcar todo el Nivel ${n} como Aprobado?`)) {
-        materias.filter(m => m.nivel === n).forEach(m => estado[m.id] = 'aprobada'); 
-        localStorage.setItem("ucsf_v5", JSON.stringify(estado)); 
-        render(); 
-    }
-}
-
-function clrNiv(n) { 
-    if(confirm(`¿Deseas resetear todas las materias del Nivel ${n}?`)) {
-        materias.filter(m => m.nivel === n).forEach(m => delete estado[m.id]); 
-        localStorage.setItem("ucsf_v5", JSON.stringify(estado)); 
-        render(); 
-    }
-}
-
+function aprNiv(n) { if(confirm(`¿Aprobar Nivel ${n}?`)) { materias.filter(m => m.nivel === n).forEach(m => estado[m.id] = 'aprobada'); localStorage.setItem("ucsf_final_v6", JSON.stringify(estado)); render(); } }
+function clrNiv(n) { if(confirm(`¿Resetear Nivel ${n}?`)) { materias.filter(m => m.nivel === n).forEach(m => delete estado[m.id]); localStorage.setItem("ucsf_final_v6", JSON.stringify(estado)); render(); } }
 function closeModal() { document.getElementById('modal').style.display = 'none'; }
 
 window.onload = render;
