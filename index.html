@@ -3,13 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UCSF Arch Tracker - Plan 2007</title>
+    <title>UCSF Arch Tracker</title>
     <link rel="stylesheet" href="styles.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
 </head>
 <body>
     <nav class="navbar">
-        <div class="brand">UCSF<span>Arch</span> <small>Plan 2007</small></div>
+        <div class="brand">UCSF<span>Arch</span></div>
         <div class="progress-container">
             <span id="stats-text">Cargando...</span>
             <div class="progress-bar"><div id="p-fill" class="p-fill"></div></div>
@@ -17,30 +16,27 @@
     </nav>
 
     <section class="info-panel">
-        <div class="info-card cursar">
+        <div class="info-card">
             <h3>🚀 Podés Cursar</h3>
             <ul id="list-cursar"></ul>
         </div>
-        <div class="info-card rendir">
-            <h3>📝 Podés Rendir (Finales)</h3>
+        <div class="info-card">
+            <h3>📝 Podés Rendir</h3>
             <ul id="list-rendir"></ul>
         </div>
     </section>
 
-    <main class="tracker-grid" id="tracker-body">
-        </main>
+    <main class="tracker-grid" id="tracker-body"></main>
 
-    <div id="modal" class="modal">
+    <div id="modal" class="modal" style="display:none;">
         <div class="modal-content">
             <h3 id="modal-title">Materia</h3>
-            <p id="modal-info" style="font-size: 0.8rem; color: #666; margin-bottom: 15px;"></p>
-            <button class="btn btn-apr" onclick="setMateriaEstado('aprobada')">APROBADA (Final)</button>
-            <button class="btn btn-reg" onclick="setMateriaEstado('regular')">REGULAR (Cursada)</button>
-            <button class="btn btn-vac" onclick="setMateriaEstado('no_cursada')">SIN CURSAR / VACÍO</button>
-            <button class="btn btn-close" onclick="closeModal()">CANCELAR</button>
+            <button class="btn btn-apr" onclick="setMateriaEstado('aprobada')">APROBADA</button>
+            <button class="btn btn-reg" onclick="setMateriaEstado('regular')">REGULAR</button>
+            <button class="btn btn-vac" onclick="setMateriaEstado('no_cursada')">VACÍO</button>
+            <button class="btn-close" onclick="closeModal()">Cerrar</button>
         </div>
     </div>
-
     <script src="app.js"></script>
 </body>
 </html>
