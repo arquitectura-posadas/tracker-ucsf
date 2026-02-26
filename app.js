@@ -35,10 +35,11 @@ const materias = [
     { id: "OPT1", nombre: "Optativa I", nivel: 5, nApr: [1, 2, 3] },
     { id: "OPT2", nombre: "Optativa II", nivel: 5, cReg: ["OPT1"], nApr: [1, 2, 3] },
     { id: "PPA", nombre: "Práctica Profesional", nivel: 5, cApr: ["ARQ4"], cReg: ["DOO", "EST3"], nApr: [1, 2, 3] },
-    { id: "SEMF", nombre: "Seminario Final", nivel: 5, cApr: ["ARQ5"], nApr: [1, 2, 3] }
+    // AJUSTE SOLICITADO PARA SEMINARIO FINAL
+    { id: "SEMF", nombre: "Seminario Final", nivel: 5, cApr: ["ARQ4"], cReg: ["HAU3", "PLAN"], nApr: [1, 2, 3] }
 ];
 
-let estado = JSON.parse(localStorage.getItem("ucsf_track_v7")) || {};
+let estado = JSON.parse(localStorage.getItem("ucsf_v8")) || {};
 let currentMateria = null;
 
 function render() {
@@ -64,20 +65,18 @@ function render() {
         materias.filter(m => m.nivel === i).forEach(m => {
             const isDone = estado[m.id] === 'regular' || estado[m.id] === 'aprobada';
             const isReady = puedeCursar(m);
-            
-            const div = document.createElement('div');
-            // Si ya está hecha, muestra su color. Si no, si está lista muestra 'ready', sino 'locked'.
             const statusClass = isDone ? (estado[m.id]) : (isReady ? 'ready' : 'locked');
             
+            const div = document.createElement('div');
             div.className = `materia-card ${statusClass}`;
             div.innerHTML = `<small style="font-weight:700; color:#999">${m.id}</small><h4>${m.nombre}</h4>`;
             
-            // Solo clickable si está lista o ya tiene estado
             if (isReady || isDone) {
                 div.onclick = () => { 
                     currentMateria = m; 
                     document.getElementById('modal-title').innerText = m.nombre; 
-                    document.getElementById('modal-info').innerText = `Requisitos: ${m.cReg ? m.cReg.join(', ') : 'Ninguno'}`;
+                    const reqs = [...(m.cReg || []), ...(m.cApr || [])];
+                    document.getElementById('modal-info').innerText = `Req: ${reqs.length > 0 ? reqs.join(', ') : 'Ninguno'}`;
                     document.getElementById('modal').style.display = 'flex'; 
                 };
             } else {
@@ -97,33 +96,23 @@ function render() {
 
 function puedeCursar(m) {
     if (estado[m.id] === 'aprobada' || estado[m.id] === 'regular') return false;
-    
-    // 1. Correlativas de Regularidad (cReg)
     const regOk = (m.cReg || []).every(id => ['regular', 'aprobada'].includes(estado[id]));
-    
-    // 2. Correlativas de Aprobación (cApr)
     const aprOk = (m.cApr || []).every(id => estado[id] === 'aprobada');
-    
-    // 3. Niveles completos (nApr)
-    const nivOk = (m.nApr || []).every(nv => {
-        const materiasDelNivel = materias.filter(x => x.nivel === nv);
-        return materiasDelNivel.every(x => estado[x.id] === 'aprobada');
-    });
-
+    const nivOk = (m.nApr || []).every(nv => materias.filter(x => x.nivel === nv).every(x => estado[x.id] === 'aprobada'));
     return regOk && aprOk && nivOk;
 }
 
 function setMateriaEstado(s) { 
     if(s === 'no_cursada') delete estado[currentMateria.id];
     else estado[currentMateria.id] = s;
-    localStorage.setItem("ucsf_track_v7", JSON.stringify(estado));
+    localStorage.setItem("ucsf_v8", JSON.stringify(estado));
     closeModal(); render(); 
 }
 
 function aprNiv(n) { 
     if(confirm(`¿Aprobar todo el Nivel ${n}?`)) {
         materias.filter(m => m.nivel === n).forEach(m => estado[m.id] = 'aprobada'); 
-        localStorage.setItem("ucsf_track_v7", JSON.stringify(estado)); 
+        localStorage.setItem("ucsf_v8", JSON.stringify(estado)); 
         render(); 
     }
 }
@@ -131,7 +120,7 @@ function aprNiv(n) {
 function clrNiv(n) { 
     if(confirm(`¿Resetear todo el Nivel ${n}?`)) {
         materias.filter(m => m.nivel === n).forEach(m => delete estado[m.id]); 
-        localStorage.setItem("ucsf_track_v7", JSON.stringify(estado)); 
+        localStorage.setItem("ucsf_v8", JSON.stringify(estado)); 
         render(); 
     }
 }
