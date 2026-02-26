@@ -38,7 +38,7 @@ const materias = [
     { id: "SEMF", nombre: "Seminario Final", nivel: 5, cApr: ["ARQ5"], nApr: [1, 2, 3] }
 ];
 
-let estado = JSON.parse(localStorage.getItem("ucsf_final_v6")) || {};
+let estado = JSON.parse(localStorage.getItem("ucsf_track_v7")) || {};
 let currentMateria = null;
 
 function render() {
@@ -52,30 +52,39 @@ function render() {
     for (let i = 1; i <= 5; i++) {
         const col = document.createElement('div');
         col.className = 'nivel-col';
-        col.innerHTML = `<div class="nivel-header"><h2>NIVEL ${i}</h2> 
-            <div>
-                <button onclick="aprNiv(${i})" style="font-size:9px; cursor:pointer;">APR</button>
-                <button onclick="clrNiv(${i})" style="font-size:9px; cursor:pointer; color:red;">CLR</button>
-            </div></div>`;
+        col.innerHTML = `
+            <div class="nivel-header">
+                <h2>NIVEL ${i}</h2> 
+                <div>
+                    <button onclick="aprNiv(${i})" style="font-size:9px; cursor:pointer;">APR</button>
+                    <button onclick="clrNiv(${i})" style="font-size:9px; cursor:pointer; color:red;">CLR</button>
+                </div>
+            </div>`;
         
         materias.filter(m => m.nivel === i).forEach(m => {
-            const isReady = puedeCursar(m);
             const isDone = estado[m.id] === 'regular' || estado[m.id] === 'aprobada';
-            const card = document.createElement('div');
+            const isReady = puedeCursar(m);
             
-            // Clase de estado: si no está lista y no está hecha, va LOCKED
-            let statusClass = isDone ? (estado[m.id] || '') : (isReady ? 'ready' : 'locked');
-            card.className = `materia-card ${statusClass}`;
-            card.innerHTML = `<small>${m.id}</small><br><strong>${m.nombre}</strong>`;
+            const div = document.createElement('div');
+            // Si ya está hecha, muestra su color. Si no, si está lista muestra 'ready', sino 'locked'.
+            const statusClass = isDone ? (estado[m.id]) : (isReady ? 'ready' : 'locked');
+            
+            div.className = `materia-card ${statusClass}`;
+            div.innerHTML = `<small style="font-weight:700; color:#999">${m.id}</small><h4>${m.nombre}</h4>`;
             
             // Solo clickable si está lista o ya tiene estado
             if (isReady || isDone) {
-                card.onclick = () => { currentMateria = m; document.getElementById('modal-title').innerText = m.nombre; document.getElementById('modal').style.display = 'flex'; };
+                div.onclick = () => { 
+                    currentMateria = m; 
+                    document.getElementById('modal-title').innerText = m.nombre; 
+                    document.getElementById('modal-info').innerText = `Requisitos: ${m.cReg ? m.cReg.join(', ') : 'Ninguno'}`;
+                    document.getElementById('modal').style.display = 'flex'; 
+                };
             } else {
-                card.onclick = () => alert("Materia bloqueada: revisá correlativas anteriores.");
+                div.onclick = () => alert(`Bloqueada: Requiere correlativas o niveles anteriores completos.`);
             }
 
-            col.appendChild(card);
+            col.appendChild(div);
             if(isReady) lc.innerHTML += `<li>${m.nombre}</li>`;
             if(estado[m.id] === 'regular') lr.innerHTML += `<li>${m.nombre}</li>`;
         });
@@ -88,21 +97,45 @@ function render() {
 
 function puedeCursar(m) {
     if (estado[m.id] === 'aprobada' || estado[m.id] === 'regular') return false;
-    const r = (m.cReg || []).every(id => ['regular', 'aprobada'].includes(estado[id]));
-    const a = (m.cApr || []).every(id => estado[id] === 'aprobada');
-    const n = (m.nApr || []).every(nv => materias.filter(x => x.nivel == nv).every(x => estado[x.id] === 'aprobada'));
-    return r && a && n;
+    
+    // 1. Correlativas de Regularidad (cReg)
+    const regOk = (m.cReg || []).every(id => ['regular', 'aprobada'].includes(estado[id]));
+    
+    // 2. Correlativas de Aprobación (cApr)
+    const aprOk = (m.cApr || []).every(id => estado[id] === 'aprobada');
+    
+    // 3. Niveles completos (nApr)
+    const nivOk = (m.nApr || []).every(nv => {
+        const materiasDelNivel = materias.filter(x => x.nivel === nv);
+        return materiasDelNivel.every(x => estado[x.id] === 'aprobada');
+    });
+
+    return regOk && aprOk && nivOk;
 }
 
 function setMateriaEstado(s) { 
     if(s === 'no_cursada') delete estado[currentMateria.id];
     else estado[currentMateria.id] = s;
-    localStorage.setItem("ucsf_final_v6", JSON.stringify(estado));
+    localStorage.setItem("ucsf_track_v7", JSON.stringify(estado));
     closeModal(); render(); 
 }
 
-function aprNiv(n) { if(confirm(`¿Aprobar Nivel ${n}?`)) { materias.filter(m => m.nivel === n).forEach(m => estado[m.id] = 'aprobada'); localStorage.setItem("ucsf_final_v6", JSON.stringify(estado)); render(); } }
-function clrNiv(n) { if(confirm(`¿Resetear Nivel ${n}?`)) { materias.filter(m => m.nivel === n).forEach(m => delete estado[m.id]); localStorage.setItem("ucsf_final_v6", JSON.stringify(estado)); render(); } }
+function aprNiv(n) { 
+    if(confirm(`¿Aprobar todo el Nivel ${n}?`)) {
+        materias.filter(m => m.nivel === n).forEach(m => estado[m.id] = 'aprobada'); 
+        localStorage.setItem("ucsf_track_v7", JSON.stringify(estado)); 
+        render(); 
+    }
+}
+
+function clrNiv(n) { 
+    if(confirm(`¿Resetear todo el Nivel ${n}?`)) {
+        materias.filter(m => m.nivel === n).forEach(m => delete estado[m.id]); 
+        localStorage.setItem("ucsf_track_v7", JSON.stringify(estado)); 
+        render(); 
+    }
+}
+
 function closeModal() { document.getElementById('modal').style.display = 'none'; }
 
 window.onload = render;
