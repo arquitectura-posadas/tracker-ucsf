@@ -10,16 +10,27 @@
 <body>
     <nav class="navbar">
         <div class="brand">UCSF / FAD - <span>PLAN 2007</span></div>
-        <div class="progress-container">
-            <span id="stats-text">0/37 Aprobadas</span>
-            <div class="progress-bar"><div id="p-fill" class="p-fill"></div></div>
+        <div class="nav-controls">
+            <button onclick="toggleDarkMode()" id="dark-btn" title="Modo Nocturno">🌙</button>
+            <button onclick="exportarPDF()" id="pdf-btn" title="Descargar Resumen">📄 PDF</button>
+            <div class="progress-container">
+                <span id="stats-text">0/37</span>
+                <div class="progress-bar"><div id="p-fill" class="p-fill"></div></div>
+            </div>
         </div>
     </nav>
 
-    <section class="info-panel">
+    <section class="info-panel sticky-panel">
         <div class="info-card cursar">
             <h3>🚀 Cursar</h3>
             <ul id="list-cursar"></ul>
+        </div>
+        <div class="info-card stats">
+            <h3>📊 Promedios</h3>
+            <div class="avg-box">
+                <p>Histórico: <strong id="prom-hist">-</strong></p>
+                <p>Académico: <strong id="prom-acad">-</strong></p>
+            </div>
         </div>
         <div class="info-card rendir">
             <h3>📝 Rendir</h3>
@@ -32,10 +43,22 @@
     <div id="modal" class="modal" style="display:none;">
         <div class="modal-content">
             <h3 id="modal-title">Materia</h3>
-            <p id="modal-info" style="font-size: 0.7rem; color: #999; margin-bottom: 15px;"></p>
-            <button class="btn btn-apr" onclick="setMateriaEstado('aprobada')">APROBADA</button>
-            <button class="btn btn-reg" onclick="setMateriaEstado('regular')">REGULAR</button>
-            <button class="btn btn-vac" onclick="setMateriaEstado('no_cursada')">SIN CURSAR</button>
+            <div class="modal-body">
+                <div class="input-group">
+                    <label>Nota Final:</label>
+                    <input type="number" id="materia-nota" min="1" max="10" placeholder="1-10">
+                </div>
+                <hr>
+                <div class="rules-group">
+                    <label><input type="checkbox" id="check-comodin"> Usar Comodín 🃏</label>
+                    <label><input type="checkbox" id="check-art26"> Libre Art. 26 📚</label>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-apr" onclick="guardarMateria('aprobada')">APROBADA</button>
+                <button class="btn btn-reg" onclick="guardarMateria('regular')">REGULAR</button>
+                <button class="btn btn-vac" onclick="guardarMateria('no_cursada')">RESET / VACÍO</button>
+            </div>
             <button class="btn-close" onclick="closeModal()">Cerrar</button>
         </div>
     </div>
