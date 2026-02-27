@@ -38,91 +38,95 @@ const materias = [
     { id: "SEMF", nombre: "Seminario Final", nivel: 5, cApr: ["ARQ4"], cReg: ["HAU3", "PLAN"], nApr: [1, 2, 3] }
 ];
 
-let estado = JSON.parse(localStorage.getItem("ucsf_v11_sticky")) || {};
+let estado = JSON.parse(localStorage.getItem("ucsf_master_v12")) || {};
 let currentMateria = null;
 
 function render() {
     const grid = document.getElementById('tracker-body');
     const lc = document.getElementById('list-cursar');
     const lr = document.getElementById('list-rendir');
-    if(!grid) return;
-
     grid.innerHTML = ''; lc.innerHTML = ''; lr.innerHTML = '';
 
     for (let i = 1; i <= 5; i++) {
         const col = document.createElement('div');
         col.className = 'nivel-col';
-        col.innerHTML = `
-            <div class="nivel-header">
-                <h2>NIVEL ${i}</h2> 
-                <div>
-                    <button onclick="aprNiv(${i})" title="Aprobar todo">APR</button>
-                    <button onclick="clrNiv(${i})" title="Resetear" style="color:red">CLR</button>
-                </div>
-            </div>`;
+        col.innerHTML = `<div class="nivel-header"><h2>NIVEL ${i}</h2> 
+            <div><button onclick="aprNiv(${i})">APR</button><button onclick="clrNiv(${i})" style="color:red">CLR</button></div></div>`;
         
         materias.filter(m => m.nivel === i).forEach(m => {
-            const isDone = estado[m.id] === 'regular' || estado[m.id] === 'aprobada';
+            const info = estado[m.id] || {};
+            const isDone = info.status === 'regular' || info.status === 'aprobada';
             const isReady = puedeCursar(m);
-            const statusClass = isDone ? (estado[m.id]) : (isReady ? 'ready' : 'locked');
+            const statusClass = isDone ? info.status : (isReady ? 'ready' : 'locked');
             
             const div = document.createElement('div');
             div.className = `materia-card ${statusClass}`;
-            div.innerHTML = `<small>${m.id}</small><h4>${m.nombre}</h4>`;
+            div.innerHTML = `<small>${m.id}</small><h4>${m.nombre}</h4> ${info.nota ? `<span>Nota: ${info.nota}</span>` : ''}`;
             
             if (isReady || isDone) {
-                div.onclick = () => { 
-                    currentMateria = m; 
-                    document.getElementById('modal-title').innerText = m.nombre; 
-                    const r = [...(m.cReg || []), ...(m.cApr || [])];
-                    document.getElementById('modal-info').innerText = `Req: ${r.length > 0 ? r.join(', ') : 'Libre'}`;
-                    document.getElementById('modal').style.display = 'flex'; 
-                };
-            } else {
-                div.onclick = () => alert(`Bloqueada: Requiere correlativas anteriores.`);
+                div.onclick = () => openMateriaModal(m);
             }
             col.appendChild(div);
             if(isReady) lc.innerHTML += `<li>${m.nombre}</li>`;
-            if(estado[m.id] === 'regular') lr.innerHTML += `<li>${m.nombre}</li>`;
+            if(info.status === 'regular') lr.innerHTML += `<li>${m.nombre}</li>`;
         });
         grid.appendChild(col);
     }
-    const aprCount = materias.filter(m => estado[m.id] === 'aprobada').length;
-    document.getElementById('stats-text').innerText = `${aprCount}/${materias.length} Aprobadas`;
-    document.getElementById('p-fill').style.width = (aprCount/materias.length*100) + "%";
+    updateStats();
 }
 
 function puedeCursar(m) {
-    if (estado[m.id] === 'aprobada' || estado[m.id] === 'regular') return false;
-    const regOk = (m.cReg || []).every(id => ['regular', 'aprobada'].includes(estado[id]));
-    const aprOk = (m.cApr || []).every(id => estado[id] === 'aprobada');
-    const nivOk = (m.nApr || []).every(nv => materias.filter(x => x.nivel === nv).every(x => estado[x.id] === 'aprobada'));
+    if (estado[m.id]?.status === 'aprobada' || estado[m.id]?.status === 'regular') return false;
+    
+    const regOk = (m.cReg || []).every(id => 
+        ['regular', 'aprobada'].includes(estado[id]?.status) || estado[id]?.comodin
+    );
+    const aprOk = (m.cApr || []).every(id => estado[id]?.status === 'aprobada');
+    const nivOk = (m.nApr || []).every(nv => materias.filter(x => x.nivel === nv).every(x => estado[x.id]?.status === 'aprobada'));
+    
     return regOk && aprOk && nivOk;
 }
 
-function setMateriaEstado(s) { 
-    if(s === 'no_cursada') delete estado[currentMateria.id];
-    else estado[currentMateria.id] = s;
-    localStorage.setItem("ucsf_v11_sticky", JSON.stringify(estado));
-    closeModal(); render(); 
+function openMateriaModal(m) {
+    currentMateria = m;
+    const info = estado[m.id] || {};
+    document.getElementById('modal-title').innerText = m.nombre;
+    document.getElementById('materia-nota').value = info.nota || '';
+    document.getElementById('check-comodin').checked = info.comodin || false;
+    document.getElementById('check-art26').checked = info.art26 || false;
+    document.getElementById('modal').style.display = 'flex';
 }
 
-function aprNiv(n) { 
-    if(confirm(`¿Aprobar todo el Nivel ${n}?`)) {
-        materias.filter(m => m.nivel === n).forEach(m => estado[m.id] = 'aprobada'); 
-        localStorage.setItem("ucsf_v11_sticky", JSON.stringify(estado)); 
-        render(); 
-    }
+function guardarMateria(status) {
+    const nota = parseInt(document.getElementById('materia-nota').value);
+    const comodin = document.getElementById('check-comodin').checked;
+    const art26 = document.getElementById('check-art26').checked;
+
+    if (status === 'no_cursada') delete estado[currentMateria.id];
+    else estado[currentMateria.id] = { status, nota, comodin, art26 };
+
+    saveAndRefresh();
+    closeModal();
 }
 
-function clrNiv(n) { 
-    if(confirm(`¿Resetear todo el Nivel ${n}?`)) {
-        materias.filter(m => m.nivel === n).forEach(m => delete estado[m.id]); 
-        localStorage.setItem("ucsf_v11_sticky", JSON.stringify(estado)); 
-        render(); 
-    }
+function updateStats() {
+    const s = Object.values(estado);
+    const aprs = s.filter(x => x.status === 'aprobada' && x.nota);
+    
+    // Promedio Académico (solo aprobadas)
+    const acad = aprs.length ? (aprs.reduce((a, b) => a + b.nota, 0) / aprs.length).toFixed(2) : '-';
+    // Promedio Histórico (suponiendo que cargás aplazos como 'no_aprobadas' o similar, acá simplificamos)
+    
+    document.getElementById('prom-acad').innerText = acad;
+    document.getElementById('stats-text').innerText = `${aprs.length}/37`;
+    document.getElementById('p-fill').style.width = (aprs.length/37*100) + "%";
 }
 
+function saveAndRefresh() { localStorage.setItem("ucsf_master_v12", JSON.stringify(estado)); render(); }
 function closeModal() { document.getElementById('modal').style.display = 'none'; }
+function toggleDarkMode() { document.body.classList.toggle('dark'); }
+function exportarPDF() { window.print(); }
+function aprNiv(n) { materias.filter(m => m.nivel === n).forEach(m => estado[m.id] = {status:'aprobada', nota: 4}); saveAndRefresh(); }
+function clrNiv(n) { materias.filter(m => m.nivel === n).forEach(m => delete estado[m.id]); saveAndRefresh(); }
 
 window.onload = render;
