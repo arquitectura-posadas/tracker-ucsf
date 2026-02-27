@@ -38,7 +38,7 @@ const materias = [
     { id: "SEMF", nombre: "Seminario Final", nivel: 5, cApr: ["ARQ4"], cReg: ["HAU3", "PLAN"], nApr: [1, 2, 3] }
 ];
 
-let estado = JSON.parse(localStorage.getItem("ucsf_master_v12")) || {};
+let estado = JSON.parse(localStorage.getItem("ucsf_master_v13")) || {};
 let currentMateria = null;
 
 function render() {
@@ -61,10 +61,17 @@ function render() {
             
             const div = document.createElement('div');
             div.className = `materia-card ${statusClass}`;
-            div.innerHTML = `<small>${m.id}</small><h4>${m.nombre}</h4> ${info.nota ? `<span>Nota: ${info.nota}</span>` : ''}`;
+            div.innerHTML = `<small>${m.id}</small><h4>${m.nombre}</h4> ${info.nota ? `<span class="nota-tag">${info.nota}</span>` : ''}`;
             
             if (isReady || isDone) {
-                div.onclick = () => openMateriaModal(m);
+                div.onclick = () => {
+                    currentMateria = m;
+                    document.getElementById('modal-title').innerText = m.nombre;
+                    document.getElementById('materia-nota').value = info.nota || '';
+                    document.getElementById('check-comodin').checked = info.comodin || false;
+                    document.getElementById('check-art26').checked = info.art26 || false;
+                    document.getElementById('modal').style.display = 'flex';
+                };
             }
             col.appendChild(div);
             if(isReady) lc.innerHTML += `<li>${m.nombre}</li>`;
@@ -77,56 +84,45 @@ function render() {
 
 function puedeCursar(m) {
     if (estado[m.id]?.status === 'aprobada' || estado[m.id]?.status === 'regular') return false;
-    
-    const regOk = (m.cReg || []).every(id => 
-        ['regular', 'aprobada'].includes(estado[id]?.status) || estado[id]?.comodin
-    );
+    const regOk = (m.cReg || []).every(id => ['regular', 'aprobada'].includes(estado[id]?.status) || estado[id]?.comodin);
     const aprOk = (m.cApr || []).every(id => estado[id]?.status === 'aprobada');
     const nivOk = (m.nApr || []).every(nv => materias.filter(x => x.nivel === nv).every(x => estado[x.id]?.status === 'aprobada'));
-    
     return regOk && aprOk && nivOk;
 }
 
-function openMateriaModal(m) {
-    currentMateria = m;
-    const info = estado[m.id] || {};
-    document.getElementById('modal-title').innerText = m.nombre;
-    document.getElementById('materia-nota').value = info.nota || '';
-    document.getElementById('check-comodin').checked = info.comodin || false;
-    document.getElementById('check-art26').checked = info.art26 || false;
-    document.getElementById('modal').style.display = 'flex';
-}
-
 function guardarMateria(status) {
-    const nota = parseInt(document.getElementById('materia-nota').value);
+    const notaInput = document.getElementById('materia-nota');
+    const nota = parseInt(notaInput.value);
+    
+    // VALIDACIÓN: Si es aprobada, requiere nota
+    if (status === 'aprobada' && (isNaN(nota) || nota < 4 || nota > 10)) {
+        alert("Por favor, ingresá una nota válida (4 a 10) para las materias aprobadas.");
+        notaInput.focus();
+        return;
+    }
+
     const comodin = document.getElementById('check-comodin').checked;
     const art26 = document.getElementById('check-art26').checked;
 
     if (status === 'no_cursada') delete estado[currentMateria.id];
-    else estado[currentMateria.id] = { status, nota, comodin, art26 };
+    else estado[currentMateria.id] = { status, nota: isNaN(nota) ? null : nota, comodin, art26 };
 
-    saveAndRefresh();
-    closeModal();
+    localStorage.setItem("ucsf_master_v13", JSON.stringify(estado));
+    closeModal(); render();
 }
 
 function updateStats() {
     const s = Object.values(estado);
-    const aprs = s.filter(x => x.status === 'aprobada' && x.nota);
-    
-    // Promedio Académico (solo aprobadas)
+    const aprs = s.filter(x => x.status === 'aprobada' && x.nota >= 4);
     const acad = aprs.length ? (aprs.reduce((a, b) => a + b.nota, 0) / aprs.length).toFixed(2) : '-';
-    // Promedio Histórico (suponiendo que cargás aplazos como 'no_aprobadas' o similar, acá simplificamos)
-    
     document.getElementById('prom-acad').innerText = acad;
-    document.getElementById('stats-text').innerText = `${aprs.length}/37`;
-    document.getElementById('p-fill').style.width = (aprs.length/37*100) + "%";
+    document.getElementById('stats-text').innerText = `${aprs.length}/${materias.length}`;
+    document.getElementById('p-fill').style.width = (aprs.length/materias.length*100) + "%";
 }
 
-function saveAndRefresh() { localStorage.setItem("ucsf_master_v12", JSON.stringify(estado)); render(); }
-function closeModal() { document.getElementById('modal').style.display = 'none'; }
 function toggleDarkMode() { document.body.classList.toggle('dark'); }
-function exportarPDF() { window.print(); }
-function aprNiv(n) { materias.filter(m => m.nivel === n).forEach(m => estado[m.id] = {status:'aprobada', nota: 4}); saveAndRefresh(); }
-function clrNiv(n) { materias.filter(m => m.nivel === n).forEach(m => delete estado[m.id]); saveAndRefresh(); }
+function closeModal() { document.getElementById('modal').style.display = 'none'; }
+function aprNiv(n) { materias.filter(m => m.nivel === n).forEach(m => estado[m.id] = {status:'aprobada', nota: 4}); localStorage.setItem("ucsf_master_v13", JSON.stringify(estado)); render(); }
+function clrNiv(n) { materias.filter(m => m.nivel === n).forEach(m => delete estado[m.id]); localStorage.setItem("ucsf_master_v13", JSON.stringify(estado)); render(); }
 
 window.onload = render;
