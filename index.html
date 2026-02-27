@@ -11,8 +11,8 @@
     <nav class="navbar">
         <div class="brand">UCSF / FAD - <span>PLAN 2007</span></div>
         <div class="nav-controls">
-            <button onclick="toggleDarkMode()" class="btn-tool">🌙</button>
-            <button onclick="window.print()" class="btn-tool">📄 PDF (Ajustado)</button>
+            <button onclick="toggleDarkMode()" class="btn-tool" title="Modo Nocturno">🌙</button>
+            <button onclick="window.print()" class="btn-tool" title="Imprimir una hoja">📄 PDF</button>
             <div class="progress-container">
                 <span id="stats-text">0/37</span>
                 <div class="progress-bar"><div id="p-fill" class="p-fill"></div></div>
@@ -45,7 +45,7 @@
             <div class="modal-body">
                 <div class="input-group">
                     <label>Nota Final:</label>
-                    <input type="number" id="materia-nota" min="4" max="10" placeholder="4-10">
+                    <input type="number" id="materia-nota" min="6" max="10" placeholder="6-10">
                 </div>
                 <div class="rules-group">
                     <label><input type="checkbox" id="check-comodin"> Usar Comodín 🃏</label>
