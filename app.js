@@ -38,7 +38,7 @@ const materias = [
     { id: "SEMF", nombre: "Seminario Final", nivel: 5, cApr: ["ARQ4"], cReg: ["HAU3", "PLAN"], nApr: [1, 2, 3] }
 ];
 
-let estado = JSON.parse(localStorage.getItem("ucsf_master_v13")) || {};
+let estado = JSON.parse(localStorage.getItem("ucsf_master_v14")) || {};
 let currentMateria = null;
 
 function render() {
@@ -94,26 +94,24 @@ function guardarMateria(status) {
     const notaInput = document.getElementById('materia-nota');
     const nota = parseInt(notaInput.value);
     
-    // VALIDACIÓN: Si es aprobada, requiere nota
-    if (status === 'aprobada' && (isNaN(nota) || nota < 4 || nota > 10)) {
-        alert("Por favor, ingresá una nota válida (4 a 10) para las materias aprobadas.");
+    // VALIDACIÓN: Mínimo 6 ahora
+    if (status === 'aprobada' && (isNaN(nota) || nota < 6 || nota > 10)) {
+        alert("¡Ojo! La nota debe ser entre 6 y 10 para materias aprobadas.");
         notaInput.focus();
         return;
     }
 
     const comodin = document.getElementById('check-comodin').checked;
     const art26 = document.getElementById('check-art26').checked;
-
     if (status === 'no_cursada') delete estado[currentMateria.id];
     else estado[currentMateria.id] = { status, nota: isNaN(nota) ? null : nota, comodin, art26 };
-
-    localStorage.setItem("ucsf_master_v13", JSON.stringify(estado));
+    localStorage.setItem("ucsf_master_v14", JSON.stringify(estado));
     closeModal(); render();
 }
 
 function updateStats() {
     const s = Object.values(estado);
-    const aprs = s.filter(x => x.status === 'aprobada' && x.nota >= 4);
+    const aprs = s.filter(x => x.status === 'aprobada' && x.nota >= 6);
     const acad = aprs.length ? (aprs.reduce((a, b) => a + b.nota, 0) / aprs.length).toFixed(2) : '-';
     document.getElementById('prom-acad').innerText = acad;
     document.getElementById('stats-text').innerText = `${aprs.length}/${materias.length}`;
@@ -122,7 +120,7 @@ function updateStats() {
 
 function toggleDarkMode() { document.body.classList.toggle('dark'); }
 function closeModal() { document.getElementById('modal').style.display = 'none'; }
-function aprNiv(n) { materias.filter(m => m.nivel === n).forEach(m => estado[m.id] = {status:'aprobada', nota: 4}); localStorage.setItem("ucsf_master_v13", JSON.stringify(estado)); render(); }
-function clrNiv(n) { materias.filter(m => m.nivel === n).forEach(m => delete estado[m.id]); localStorage.setItem("ucsf_master_v13", JSON.stringify(estado)); render(); }
+function aprNiv(n) { materias.filter(m => m.nivel === n).forEach(m => estado[m.id] = {status:'aprobada', nota: 6}); localStorage.setItem("ucsf_master_v14", JSON.stringify(estado)); render(); }
+function clrNiv(n) { materias.filter(m => m.nivel === n).forEach(m => delete estado[m.id]); localStorage.setItem("ucsf_master_v14", JSON.stringify(estado)); render(); }
 
 window.onload = render;
