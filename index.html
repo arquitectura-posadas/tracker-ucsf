@@ -11,8 +11,8 @@
     <nav class="navbar">
         <div class="brand">UCSF / FAD - <span>PLAN 2007</span></div>
         <div class="nav-controls">
-            <button onclick="toggleDarkMode()" class="btn-tool" title="Modo Nocturno">🌙</button>
-            <button onclick="window.print()" class="btn-tool" title="Imprimir una hoja">📄 PDF</button>
+            <button onclick="toggleDarkMode()" class="btn-tool">🌙</button>
+            <button onclick="window.print()" class="btn-tool">📄 PDF</button>
             <div class="progress-container">
                 <span id="stats-text">0/37</span>
                 <div class="progress-bar"><div id="p-fill" class="p-fill"></div></div>
@@ -20,24 +20,26 @@
         </div>
     </nav>
 
-    <section class="info-panel sticky-panel">
-        <div class="info-card cursar">
-            <h3>🚀 Cursar</h3>
-            <ul id="list-cursar"></ul>
-        </div>
-        <div class="info-card stats">
-            <h3>📊 Promedio</h3>
-            <div class="avg-box">
-                <p>Académico: <strong id="prom-acad">-</strong></p>
+    <div class="main-layout">
+        <aside class="info-panel">
+            <div class="info-card cursar">
+                <h3>🚀 Cursar</h3>
+                <ul id="list-cursar"></ul>
             </div>
-        </div>
-        <div class="info-card rendir">
-            <h3>📝 Rendir</h3>
-            <ul id="list-rendir"></ul>
-        </div>
-    </section>
+            <div class="info-card stats">
+                <h3>📊 Promedio</h3>
+                <div class="avg-box">
+                    <p>Académico: <strong id="prom-acad">-</strong></p>
+                </div>
+            </div>
+            <div class="info-card rendir">
+                <h3>📝 Rendir</h3>
+                <ul id="list-rendir"></ul>
+            </div>
+        </aside>
 
-    <main class="tracker-grid" id="tracker-body"></main>
+        <main class="tracker-grid" id="tracker-body"></main>
+    </div>
 
     <div id="modal" class="modal" style="display:none;">
         <div class="modal-content">
