@@ -33,12 +33,12 @@ const materias = [
     { id: "TEOM", nombre: "Teología Moral", nivel: 4, cReg: ["TEOD"], nApr: [1] },
     { id: "ARQ5", nombre: "Arquitectura V", nivel: 5, cApr: ["ARQ4"], cReg: ["PLAN", "HAU3", "EST3", "INS2"], nApr: [1, 2, 3] },
     { id: "OPT1", nombre: "Optativa I", nivel: 5, nApr: [1, 2, 3] },
-    { id: "OPT2", nombre: "Optativa II", nivel: 5, cReg: ["OPT1"], nApr: [1, 2, 3] },
+    { id: "OPT2", nombre: "Optativa II", nivel: 5, nApr: [1, 2, 3] }, // Corregido: Sin dependencia de OPT1
     { id: "PPA", nombre: "Práctica Profesional", nivel: 5, cApr: ["ARQ4"], cReg: ["DOO", "EST3"], nApr: [1, 2, 3] },
     { id: "SEMF", nombre: "Seminario Final", nivel: 5, cApr: ["ARQ4"], cReg: ["HAU3", "PLAN"], nApr: [1, 2, 3] }
 ];
 
-let estado = JSON.parse(localStorage.getItem("ucsf_final_v9")) || {};
+let estado = JSON.parse(localStorage.getItem("ucsf_v10_final")) || {};
 let currentMateria = null;
 
 function render() {
@@ -56,8 +56,8 @@ function render() {
             <div class="nivel-header">
                 <h2>NIVEL ${i}</h2> 
                 <div>
-                    <button onclick="aprNiv(${i})" style="font-size:9px; cursor:pointer; padding:2px 5px;">APR</button>
-                    <button onclick="clrNiv(${i})" style="font-size:9px; cursor:pointer; color:red; padding:2px 5px;">CLR</button>
+                    <button onclick="aprNiv(${i})" title="Aprobar todo">APR</button>
+                    <button onclick="clrNiv(${i})" title="Resetear" style="color:red">CLR</button>
                 </div>
             </div>`;
         
@@ -68,7 +68,7 @@ function render() {
             
             const div = document.createElement('div');
             div.className = `materia-card ${statusClass}`;
-            div.innerHTML = `<small style="font-weight:700; color:#999">${m.id}</small><h4>${m.nombre}</h4>`;
+            div.innerHTML = `<small>${m.id}</small><h4>${m.nombre}</h4>`;
             
             if (isReady || isDone) {
                 div.onclick = () => { 
@@ -79,7 +79,7 @@ function render() {
                     document.getElementById('modal').style.display = 'flex'; 
                 };
             } else {
-                div.onclick = () => alert(`Bloqueada: Requiere niveles anteriores o correlativas directas.`);
+                div.onclick = () => alert(`Bloqueada: Requiere niveles anteriores o correlativas específicas.`);
             }
 
             col.appendChild(div);
@@ -104,14 +104,14 @@ function puedeCursar(m) {
 function setMateriaEstado(s) { 
     if(s === 'no_cursada') delete estado[currentMateria.id];
     else estado[currentMateria.id] = s;
-    localStorage.setItem("ucsf_final_v9", JSON.stringify(estado));
+    localStorage.setItem("ucsf_v10_final", JSON.stringify(estado));
     closeModal(); render(); 
 }
 
 function aprNiv(n) { 
     if(confirm(`¿Aprobar todo el Nivel ${n}?`)) {
         materias.filter(m => m.nivel === n).forEach(m => estado[m.id] = 'aprobada'); 
-        localStorage.setItem("ucsf_final_v9", JSON.stringify(estado)); 
+        localStorage.setItem("ucsf_v10_final", JSON.stringify(estado)); 
         render(); 
     }
 }
@@ -119,7 +119,7 @@ function aprNiv(n) {
 function clrNiv(n) { 
     if(confirm(`¿Resetear todo el Nivel ${n}?`)) {
         materias.filter(m => m.nivel === n).forEach(m => delete estado[m.id]); 
-        localStorage.setItem("ucsf_final_v9", JSON.stringify(estado)); 
+        localStorage.setItem("ucsf_v10_final", JSON.stringify(estado)); 
         render(); 
     }
 }
