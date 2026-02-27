@@ -11,8 +11,8 @@
     <nav class="navbar">
         <div class="brand">UCSF / FAD - <span>PLAN 2007</span></div>
         <div class="nav-controls">
-            <button onclick="toggleDarkMode()" id="dark-btn" title="Modo Nocturno">🌙</button>
-            <button onclick="exportarPDF()" id="pdf-btn" title="Descargar Resumen">📄 PDF</button>
+            <button onclick="toggleDarkMode()" class="btn-tool">🌙</button>
+            <button onclick="window.print()" class="btn-tool">📄 PDF (Ajustado)</button>
             <div class="progress-container">
                 <span id="stats-text">0/37</span>
                 <div class="progress-bar"><div id="p-fill" class="p-fill"></div></div>
@@ -26,9 +26,8 @@
             <ul id="list-cursar"></ul>
         </div>
         <div class="info-card stats">
-            <h3>📊 Promedios</h3>
+            <h3>📊 Promedio</h3>
             <div class="avg-box">
-                <p>Histórico: <strong id="prom-hist">-</strong></p>
                 <p>Académico: <strong id="prom-acad">-</strong></p>
             </div>
         </div>
@@ -46,9 +45,8 @@
             <div class="modal-body">
                 <div class="input-group">
                     <label>Nota Final:</label>
-                    <input type="number" id="materia-nota" min="1" max="10" placeholder="1-10">
+                    <input type="number" id="materia-nota" min="4" max="10" placeholder="4-10">
                 </div>
-                <hr>
                 <div class="rules-group">
                     <label><input type="checkbox" id="check-comodin"> Usar Comodín 🃏</label>
                     <label><input type="checkbox" id="check-art26"> Libre Art. 26 📚</label>
@@ -57,9 +55,9 @@
             <div class="modal-actions">
                 <button class="btn btn-apr" onclick="guardarMateria('aprobada')">APROBADA</button>
                 <button class="btn btn-reg" onclick="guardarMateria('regular')">REGULAR</button>
-                <button class="btn btn-vac" onclick="guardarMateria('no_cursada')">RESET / VACÍO</button>
+                <button class="btn btn-vac" onclick="guardarMateria('no_cursada')">BORRAR</button>
             </div>
-            <button class="btn-close" onclick="closeModal()">Cerrar</button>
+            <button class="btn-close" onclick="closeModal()">Cancelar</button>
         </div>
     </div>
     <script src="app.js"></script>
