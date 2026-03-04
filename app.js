@@ -38,7 +38,7 @@ const materias = [
     { id: "SEMF", nombre: "Seminario Final", nivel: 5, cApr: ["ARQ4"], cReg: ["HAU3", "PLAN"], nApr: [1, 2, 3] }
 ];
 
-let estado = JSON.parse(localStorage.getItem("ucsf_master_v15")) || {};
+let estado = JSON.parse(localStorage.getItem("ucsf_master_v16")) || {};
 let currentMateria = null;
 
 function render() {
@@ -50,8 +50,14 @@ function render() {
     for (let i = 1; i <= 5; i++) {
         const col = document.createElement('div');
         col.className = 'nivel-col';
-        col.innerHTML = `<div class="nivel-header"><h2>NIVEL ${i}</h2> 
-            <div><button onclick="aprNiv(${i})">APR</button></div></div>`;
+        col.innerHTML = `
+            <div class="nivel-header">
+                <h2>NIVEL ${i}</h2> 
+                <div style="display:flex; gap:4px">
+                    <button class="btn-header" onclick="aprNiv(${i})">Aprobar</button>
+                    <button class="btn-header" style="color:#ef4444" onclick="clrNiv(${i})">Limpiar</button>
+                </div>
+            </div>`;
         
         materias.filter(m => m.nivel === i).forEach(m => {
             const info = estado[m.id] || {};
@@ -61,7 +67,7 @@ function render() {
             
             const div = document.createElement('div');
             div.className = `materia-card ${statusClass}`;
-            div.innerHTML = `<small>${m.id}</small><h4>${m.nombre}</h4> ${info.nota ? `<span class="nota-tag">${info.nota}</span>` : ''}`;
+            div.innerHTML = `<small style="font-weight:700">${m.id}</small><h4>${m.nombre}</h4> ${info.nota ? `<span class="nota-tag">${info.nota}</span>` : ''}`;
             
             if (isReady || isDone) {
                 div.onclick = () => {
@@ -102,7 +108,7 @@ function guardarMateria(status) {
     const art26 = document.getElementById('check-art26').checked;
     if (status === 'no_cursada') delete estado[currentMateria.id];
     else estado[currentMateria.id] = { status, nota: isNaN(nota) ? null : nota, comodin, art26 };
-    localStorage.setItem("ucsf_master_v15", JSON.stringify(estado));
+    localStorage.setItem("ucsf_master_v16", JSON.stringify(estado));
     closeModal(); render();
 }
 
@@ -117,6 +123,7 @@ function updateStats() {
 
 function toggleDarkMode() { document.body.classList.toggle('dark'); }
 function closeModal() { document.getElementById('modal').style.display = 'none'; }
-function aprNiv(n) { materias.filter(m => m.nivel === n).forEach(m => estado[m.id] = {status:'aprobada', nota: 6}); localStorage.setItem("ucsf_master_v15", JSON.stringify(estado)); render(); }
+function aprNiv(n) { if(confirm(`¿Aprobar todo el Nivel ${n}?`)) { materias.filter(m => m.nivel === n).forEach(m => estado[m.id] = {status:'aprobada', nota: 6}); localStorage.setItem("ucsf_master_v16", JSON.stringify(estado)); render(); } }
+function clrNiv(n) { if(confirm(`¿Deseas resetear todas las materias del Nivel ${n}?`)) { materias.filter(m => m.nivel === n).forEach(m => delete estado[m.id]); localStorage.setItem("ucsf_master_v16", JSON.stringify(estado)); render(); } }
 
 window.onload = render;
